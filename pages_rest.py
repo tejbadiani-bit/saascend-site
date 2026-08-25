@@ -2,14 +2,22 @@
 """Interior page bodies."""
 
 def cards(items, dark=False, num=True):
-    cls = "card card--dark rv" if dark else "card card--lift rv"
-    out = []
-    for i, (t, d) in enumerate(items):
-        n = '<div class="card__num">%02d</div>' % (i + 1) if num else ""
-        out.append('<article class="{c}">{n}<h3 class="t-h3">{t}</h3>'
-                   '<p class="t-body">{d}</p></article>'.format(c=cls, n=n, t=t, d=d))
-    return "".join(out)
+    """Hairline rows, not bordered cards.
 
+    The first build put every list on this site into a grid of bordered,
+    rounded, hover-lifting cards — 110 of them. Card grids are the shell that
+    made the whole thing read as machine-made. `num` is accepted and ignored:
+    decorative 01/02/03 markers were applied to sets that are not sequences.
+    """
+    return "".join(
+        '<div class="trow"><div class="trow__k">{t}</div>'
+        '<div class="trow__v">{d}</div></div>'.format(t=t, d=d)
+        for t, d in items)
+
+
+def grid(items, dark=False, num=True):
+    """Kept as the old name so call sites stay readable."""
+    return cards(items, dark, num)
 
 def people(items):
     return "".join(
@@ -78,7 +86,7 @@ def solutions_body():
         HubSpot and the systems around them with a data model and architecture ready for AI from
         day one.</p>
     </div>
-    <div class="grid grid-4 mt-16">{build}</div>
+    <div class="tlist mt-16">{build}</div>
     <div class="mt-16">{bsplit}</div>
   </div>
 </section>
@@ -91,11 +99,11 @@ def solutions_body():
       <p class="t-lead">A GTM system decays without an owner. Managed services give you senior
         operators on the stack every week &mdash; and a documented system you always own outright.</p>
     </div>
-    <div class="grid grid-3 mt-16">{manage}</div>
+    <div class="tlist mt-16">{manage}</div>
   </div>
 </section>
 
-<section class="strata strata--abyss" id="transform">
+<section class="strata strata--abyss field--abyss" id="transform">
   <div class="wrap on-dark">
     <div class="head rv">
       <div class="t-eyebrow">Transform &middot; 03</div>
@@ -103,7 +111,7 @@ def solutions_body():
       <p class="t-lead">Agents do real GTM work when the data model, the automation and the
         ownership underneath them are sound. That is the only condition we deploy under.</p>
     </div>
-    <div class="grid grid-3 mt-16">{transform}</div>
+    <div class="tlist mt-16">{transform}</div>
     <div class="mt-16 rv">
       <a class="btn btn--cyan" href="agents.html">Browse the 33 agents</a>
     </div>
@@ -147,7 +155,7 @@ def agents_body():
       <div class="t-eyebrow">How deployment works</div>
       <h2 class="t-h2" style="color:var(--navy)">An agent is a deployment, not a download</h2>
     </div>
-    <div class="grid grid-4 mt-12">{steps}</div>
+    <div class="tlist mt-12">{steps}</div>
   </div>
 </section>
 """.format(steps=cards([
@@ -260,7 +268,7 @@ def how_body():
       <p class="t-lead">No open meter. Choose the model that fits the engagement &mdash; or combine
         them across a transformation.</p>
     </div>
-    <div class="grid grid-4 mt-12">{pricing}</div>
+    <div class="tlist mt-12">{pricing}</div>
   </div>
 </section>
 
@@ -369,11 +377,11 @@ def about_body():
       <h2 class="t-h1" style="color:var(--navy)">The principles behind every engagement</h2>
       <p class="t-lead">These are not slogans. They are the rules we design and deliver by.</p>
     </div>
-    <div class="grid grid-3 mt-16">{principles}</div>
+    <div class="tlist mt-16">{principles}</div>
   </div>
 </section>
 
-<section class="strata strata--abyss">
+<section class="strata strata--abyss field--abyss">
   <div class="wrap on-dark">
     <div class="head rv">
       <div class="t-eyebrow">Why GTM expertise matters</div>
@@ -381,7 +389,7 @@ def about_body():
       <p class="t-lead">GTM systems are where strategy meets the database. Getting them right takes
         people who have lived in the details &mdash; not a template applied from the outside.</p>
     </div>
-    <div class="grid grid-3 mt-16">{expertise}</div>
+    <div class="tlist mt-16">{expertise}</div>
   </div>
 </section>
 

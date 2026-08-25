@@ -32,6 +32,12 @@
   --ice:         #EBF9FF;
   --white:       #FFFFFF;
 
+  /* Status. Muted on purpose — the weak-stack artifact should read as
+     "this is wrong", not as an alarm going off. */
+  --status-ok:     #2EA66A;
+  --status-warn:   #B07A16;
+  --status-danger: #B4494C;
+
   /* On-dark */
   --on-dark:        rgba(255,255,255,0.96);
   --on-dark-soft:   rgba(255,255,255,0.70);
@@ -51,8 +57,8 @@
   --s6: 24px; --s8: 32px;  --s10: 40px; --s12: 48px; --s16: 64px;
   --s20: 80px; --s24: 96px; --s32: 128px;
 
-  --radius:    10px;
-  --radius-sm: 6px;
+  --radius:    3px;
+  --radius-sm: 2px;
   --radius-pill: 999px;
 
   /* Motion — strong curves; built-ins are too weak */
@@ -93,8 +99,8 @@ h1, h2, h3, h4, p { margin: 0; }
   text-wrap: balance;
   font-family: var(--display);
   font-weight: 800;
-  font-size: clamp(2.05rem, 4.4vw, 3.5rem);
-  line-height: 1.04;
+  font-size: clamp(2.6rem, 8.2vw, 6.5rem);
+  line-height: 0.98;
   letter-spacing: -0.035em;
 }
 .t-h1 {
@@ -419,11 +425,7 @@ html:not(.js) .layer__more { height: auto; opacity: 1; }
               box-shadow var(--t-ui) ease;
 }
 .card > * + * { margin-top: var(--s3); }
-.card--lift:hover {
-  transform: translateY(-3px);
-  border-color: var(--cyan-200);
-  box-shadow: 0 14px 34px rgba(3,31,73,0.09);
-}
+.card--lift:hover { border-color: var(--ink-300); }
 .card--dark {
   background: var(--plate);
   border-color: var(--rule-dark);
@@ -530,11 +532,7 @@ html:not(.js) .layer__more { height: auto; opacity: 1; }
   transition: transform var(--t-ui) var(--ease-out),
               border-color var(--t-ui) ease, box-shadow var(--t-ui) ease;
 }
-.agent:hover {
-  transform: translateY(-3px);
-  border-color: var(--cyan-200);
-  box-shadow: 0 12px 30px rgba(3,31,73,0.08);
-}
+.agent:hover { border-color: var(--ink-300); }
 .agent__team {
   font-family: var(--mono); font-size: 0.6563rem; font-weight: 600;
   letter-spacing: 0.11em; text-transform: uppercase; color: var(--cyan-600);
@@ -584,7 +582,7 @@ html:not(.js) .layer__more { height: auto; opacity: 1; }
   transition: transform var(--t-ui) var(--ease-out),
               border-color var(--t-ui) ease, background-color var(--t-ui) ease;
 }
-.rung:hover { transform: translateX(4px); border-color: var(--cyan-200); background: var(--ice); }
+.rung:hover { border-color: var(--ink-300); }
 .rung__k { font-family: var(--mono); font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.08em; color: var(--cyan-600); }
 .rung__t { font-family: var(--display); font-weight: 700; font-size: 1rem; letter-spacing: -0.01em; color: var(--navy); }
 .rung__d { font-size: 0.875rem; line-height: 1.5; color: var(--ink-600); margin-top: 2px; }
@@ -761,3 +759,341 @@ html.js .layers.is-in .layer {
   letter-spacing: 0.11em; text-transform: uppercase; color: var(--cyan-600);
 }
 @media (max-width: 620px) { .person__role { min-height: 0; } }
+
+
+/* =====================================================================
+   OVERHAUL — one idea per held moment
+   ---------------------------------------------------------------------
+   The first build repeated a single section shell (eyebrow / headline /
+   lead / grid of bordered cards) six times down the home page. That
+   repetition is what read as machine-made, regardless of how the tokens
+   were tuned. What follows replaces it: full-bleed colour fields that own
+   whole regions, type at a scale that can carry a section alone,
+   hairline-ruled lists instead of card grids, and one orchestrated
+   scroll sequence on the argument itself.
+   ===================================================================== */
+
+/* ---------- Full-bleed fields. Colour commits at page scale. ---------- */
+.field { position: relative; width: 100%; }
+.field--navy { background: var(--navy); color: var(--on-dark); }
+.field--abyss { background: var(--abyss); color: var(--on-dark); }
+.field--ice { background: var(--ice); }
+.field--cyan {
+  background: var(--cyan);
+  color: var(--navy);
+}
+.field--cyan .t-sys, .field--cyan .t-eyebrow { color: rgba(3,31,73,0.62); }
+.field--cyan .t-lead, .field--cyan .t-body { color: rgba(3,31,73,0.82); }
+.field--paper { background: var(--white); }
+
+.hold { padding: clamp(88px, 15vh, 200px) 0; }
+.hold--tall { padding: clamp(120px, 22vh, 280px) 0; }
+.narrow { max-width: 900px; }
+.mid { max-width: 1080px; }
+
+/* A statement that owns its screen. No eyebrow, no lead, no grid. */
+.statement {
+  font-family: var(--display); font-weight: 800;
+  font-size: clamp(2.1rem, 6.4vw, 5rem);
+  line-height: 1.02; letter-spacing: -0.038em;
+  text-wrap: balance;
+}
+.statement .dim { color: var(--on-dark-faint); }
+.field--ice .statement, .field--paper .statement { color: var(--navy); }
+.field--ice .statement .dim, .field--paper .statement .dim { color: var(--ink-300); }
+
+/* A number that is the whole point of its section. */
+.bignum {
+  font-family: var(--display); font-weight: 800;
+  font-size: clamp(4.5rem, 18vw, 15rem);
+  line-height: 0.84; letter-spacing: -0.05em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Hairline lists. The card grid's replacement. ---------- */
+.tlist { border-top: 1px solid currentColor; border-color: var(--ink-200); }
+.field--navy .tlist, .field--abyss .tlist { border-color: var(--rule-dark); }
+.field--cyan .tlist { border-color: rgba(3,31,73,0.22); }
+
+.trow {
+  display: grid;
+  grid-template-columns: minmax(0, 26ch) minmax(0, 1fr);
+  gap: clamp(20px, 4vw, 64px);
+  padding: clamp(22px, 3vw, 38px) 0;
+  border-bottom: 1px solid var(--ink-200);
+  align-items: baseline;
+}
+.field--navy .trow, .field--abyss .trow { border-color: var(--rule-dark); }
+.field--cyan .trow { border-color: rgba(3,31,73,0.22); }
+@media (max-width: 720px) { .trow { grid-template-columns: 1fr; gap: 10px; } }
+
+.trow__k {
+  font-family: var(--display); font-weight: 700;
+  font-size: clamp(1.25rem, 2.1vw, 1.75rem);
+  line-height: 1.15; letter-spacing: -0.022em;
+}
+.field--ice .trow__k, .field--paper .trow__k { color: var(--navy); }
+.trow__v { font-size: 1.0625rem; line-height: 1.62; }
+.field--navy .trow__v, .field--abyss .trow__v { color: var(--on-dark-soft); }
+.field--ice .trow__v, .field--paper .trow__v { color: var(--ink-600); }
+.field--cyan .trow__v { color: rgba(3,31,73,0.82); }
+
+/* Inline capability text — replaces the chip crutch */
+.inline-caps {
+  font-size: 0.9375rem; line-height: 1.9; color: var(--ink-600);
+}
+.inline-caps b { font-weight: 400; color: var(--navy); }
+.field--navy .inline-caps, .field--abyss .inline-caps { color: var(--on-dark-soft); }
+.field--navy .inline-caps b, .field--abyss .inline-caps b { color: var(--on-dark); }
+
+/* ---------- THE ARGUMENT — pinned scroll sequence ----------
+   The stack was a static figure beside the hero. It is the thing the
+   company actually sells, so it now gets its own screen and assembles
+   as you scroll: one layer per step, its copy swapping in beside it. */
+.seq { position: relative; background: var(--abyss); color: var(--on-dark); }
+.seq__track { height: 520vh; }
+.seq__stage {
+  position: sticky; top: 0; height: 100vh;
+  display: flex; align-items: center; overflow: hidden;
+}
+.seq__grid {
+  display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.05fr);
+  gap: clamp(32px, 6vw, 96px); align-items: center; width: 100%;
+}
+@media (max-width: 900px) {
+  .seq__grid { grid-template-columns: 1fr; gap: 28px; }
+  .seq__track { height: 460vh; }
+}
+
+.seq__copy { min-height: 15rem; position: relative; }
+.seq__step { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
+.seq__step.is-live { opacity: 1; pointer-events: auto; }
+html.js .seq__step { transition: opacity 320ms var(--ease-out); }
+html:not(.js) .seq__step { position: static; opacity: 1; margin-bottom: var(--s8); }
+html:not(.js) .seq__copy { min-height: 0; }
+
+.seq__id {
+  font-family: var(--mono); font-size: 0.75rem; font-weight: 600;
+  letter-spacing: 0.16em; color: var(--cyan);
+}
+.seq__name {
+  font-family: var(--display); font-weight: 800;
+  font-size: clamp(2rem, 4.6vw, 3.5rem);
+  line-height: 1.02; letter-spacing: -0.035em;
+  margin-top: 14px; color: var(--white);
+}
+.seq__note {
+  margin-top: 18px; max-width: 34ch;
+  font-size: 1.0625rem; line-height: 1.6; color: var(--on-dark-soft);
+}
+.seq__caps {
+  margin-top: 22px; font-family: var(--mono); font-size: 0.6875rem;
+  letter-spacing: 0.11em; text-transform: uppercase; color: var(--on-dark-faint);
+}
+
+/* The plates. Built bottom-up, brightening as the argument rises. */
+.seq__plates { display: flex; flex-direction: column-reverse; gap: 8px; }
+.plate {
+  display: grid; grid-template-columns: 44px minmax(0,1fr);
+  gap: var(--s4); align-items: center;
+  padding: clamp(14px, 2vw, 22px) clamp(16px, 2vw, 24px);
+  border: 1px solid var(--rule-dark);
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.025);
+}
+html.js .plate { opacity: 0.16; }
+html.js .plate.is-built { opacity: 1; }
+html.js .plate {
+  transition: opacity 380ms var(--ease-out),
+              background-color 380ms var(--ease-out),
+              border-color 380ms var(--ease-out);
+}
+.plate.is-built { background: rgba(255,255,255,0.055); border-color: rgba(140,205,235,0.30); }
+.plate.is-current { background: rgba(0,172,212,0.14); border-color: rgba(0,172,212,0.55); }
+.plate__id {
+  font-family: var(--mono); font-size: 0.6875rem; font-weight: 600;
+  letter-spacing: 0.06em; color: var(--cyan);
+}
+.plate__name {
+  font-family: var(--display); font-weight: 700; font-size: 1.0625rem;
+  letter-spacing: -0.012em; color: var(--on-dark);
+}
+.seq__foot {
+  margin-top: clamp(20px, 3vw, 32px); padding-top: var(--s4);
+  border-top: 1px solid var(--rule-dark);
+  font-family: var(--mono); font-size: 0.6875rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--on-dark-faint);
+  display: flex; justify-content: space-between; gap: var(--s4);
+}
+.seq__foot b { color: var(--cyan); font-weight: 600; }
+
+/* ---------- Agent roster — 33 names is the proof, not six cards ---------- */
+.roster {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0 clamp(24px, 4vw, 56px);
+  border-top: 1px solid var(--rule-dark);
+}
+.roster__item {
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--s3);
+  padding: 13px 0; border-bottom: 1px solid var(--rule-dark);
+  font-size: 0.9688rem; color: var(--on-dark-soft);
+}
+.roster__item b { font-weight: 400; color: var(--on-dark); }
+.roster__team {
+  font-family: var(--mono); font-size: 0.625rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--on-dark-faint); flex: 0 0 auto;
+}
+
+/* ---------- Hero — type is the hero, nothing beside it ---------- */
+.open {
+  min-height: 100svh; display: flex; flex-direction: column; justify-content: center;
+  background:
+    radial-gradient(1200px 700px at 78% 6%, rgba(0,172,212,0.17), transparent 64%),
+    var(--abyss);
+  color: var(--on-dark);
+  padding: calc(var(--nav-h) + clamp(36px,5.5vh,64px)) 0 clamp(32px,5vh,56px);
+}
+.open__display {
+  font-family: var(--display); font-weight: 800;
+  font-size: clamp(2.6rem, 8.6vw, 7rem);
+  line-height: 0.95; letter-spacing: -0.045em;
+  text-wrap: balance; max-width: 18ch;
+}
+.open__display .accent { color: var(--cyan); }
+.open__sub {
+  margin-top: clamp(24px, 3.5vw, 40px); max-width: 44ch;
+  font-size: clamp(1.0625rem, 1.5vw, 1.375rem); line-height: 1.55;
+  color: var(--on-dark-soft);
+}
+.open__act { margin-top: clamp(32px, 4vw, 48px); }
+.open__foot {
+  margin-top: auto; padding-top: clamp(32px, 5vh, 56px);
+  display: flex; flex-wrap: wrap; gap: clamp(24px, 5vw, 72px);
+  font-family: var(--mono); font-size: 0.6875rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--on-dark-faint);
+}
+.open__foot b {
+  display: block; font-family: var(--display); font-weight: 800;
+  font-size: clamp(1.5rem, 2.4vw, 2.125rem); letter-spacing: -0.03em;
+  color: var(--on-dark); margin-bottom: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js .plate { opacity: 1; }
+  html.js .seq__step { transition: none; }
+}
+
+
+/* =====================================================================
+   TILES — the Apple discipline, in SaaScend's material
+   ---------------------------------------------------------------------
+   Apple's home page is not big type; it is a run of edge-to-edge tiles,
+   each owning one ground and one idea, centred, with a name, a single
+   line, small actions, and one precise artifact. The scale comes from
+   whitespace and the artifact, not from 140px headlines. Boldare supplies
+   the other half: sharp geometry, an accent used as a solid field, and an
+   inverted box around one keyword. Neither look is copied — the artifact
+   in every tile here is the GTM stack, which is ours.
+   ===================================================================== */
+
+.tile {
+  padding: clamp(72px, 11vh, 148px) 0;
+  text-align: center;
+  position: relative;
+}
+.tile__in { width: 100%; max-width: 980px; margin: 0 auto; padding: 0 var(--s6); }
+.tile__in--wide { max-width: 1240px; }
+
+.tile__name {
+  font-family: var(--display); font-weight: 800;
+  font-size: clamp(2.1rem, 5.2vw, 4rem);
+  line-height: 1.0; letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+.tile__line {
+  margin-top: clamp(14px, 1.8vw, 22px);
+  font-size: clamp(1.0625rem, 1.45vw, 1.375rem);
+  line-height: 1.5; text-wrap: balance;
+  max-width: 46ch; margin-left: auto; margin-right: auto;
+}
+.tile__act { margin-top: clamp(24px, 3vw, 34px); display: flex; gap: var(--s3); justify-content: center; flex-wrap: wrap; }
+.tile__art { margin-top: clamp(40px, 6vw, 76px); }
+
+/* Ground-aware type. Each tile owns its colour completely. */
+.field--navy .tile__name, .field--abyss .tile__name { color: var(--white); }
+.field--ice .tile__name, .field--paper .tile__name { color: var(--navy); }
+.field--cyan .tile__name { color: var(--navy); }
+.field--navy .tile__line, .field--abyss .tile__line { color: var(--on-dark-soft); }
+.field--ice .tile__line, .field--paper .tile__line { color: var(--ink-600); }
+.field--cyan .tile__line { color: rgba(3,31,73,0.78); }
+
+/* THE SIGNATURE TYPOGRAPHIC DEVICE — one keyword, boxed and inverted.
+   Used sparingly: once per tile at most, never twice in one line. */
+.mark {
+  display: inline-block;
+  padding: 0.04em 0.26em 0.1em;
+  background: var(--cyan);
+  color: var(--navy);
+  border-radius: 2px;
+}
+.field--cyan .mark { background: var(--navy); color: var(--cyan); }
+
+/* Two-up tiles, so the rhythm is not one full-width band after another */
+.tiles-2 {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+  background: var(--ink-200);
+}
+@media (max-width: 820px) { .tiles-2 { grid-template-columns: 1fr; } }
+.tiles-2 > .tile { padding-left: var(--s6); padding-right: var(--s6); }
+.tiles-2 > .tile .tile__in { max-width: 34ch; padding: 0; }
+.tiles-2 > .tile .tile__name { font-size: clamp(1.75rem, 2.6vw, 2.5rem); }
+
+/* Small centred actions, Apple's pair: one filled, one outline */
+.pill {
+  display: inline-flex; align-items: center;
+  font-family: var(--display); font-weight: 600; font-size: 0.9375rem;
+  padding: 11px 22px; border-radius: var(--radius-pill);
+  transition: transform var(--t-press) var(--ease-out), background-color var(--t-ui) ease,
+              border-color var(--t-ui) ease, color var(--t-ui) ease;
+}
+.pill:active { transform: scale(0.97); }
+.pill--fill { background: var(--blue); color: var(--white); }
+.pill--fill:hover { background: var(--blue-600); }
+.pill--line { border: 1px solid currentColor; }
+.field--navy .pill--line, .field--abyss .pill--line { color: var(--cyan); }
+.field--ice .pill--line, .field--paper .pill--line { color: var(--blue); }
+.field--cyan .pill--fill { background: var(--navy); color: var(--white); }
+.field--cyan .pill--line { color: var(--navy); }
+
+/* Artifact: the broken stack, for the cost-of-a-weak-foundation tile */
+.weak { display: flex; flex-direction: column-reverse; gap: 6px; max-width: 620px; margin: 0 auto; }
+.weak__row {
+  display: grid; grid-template-columns: 40px minmax(0,1fr) auto;
+  gap: var(--s4); align-items: center; text-align: left;
+  padding: 15px 18px; border: 1px solid var(--ink-200); background: var(--white);
+  border-radius: var(--radius-sm);
+}
+.weak__id { font-family: var(--mono); font-size: 0.6875rem; font-weight: 600; color: var(--ink-500); }
+.weak__t { font-family: var(--display); font-weight: 700; font-size: 0.9688rem; color: var(--navy); }
+.weak__s {
+  font-family: var(--mono); font-size: 0.625rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--status-danger); flex: 0 0 auto;
+}
+.weak__row--ok .weak__s { color: var(--ink-300); }
+
+/* Centred metric run for the outcomes tile */
+.runs { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(20px,3vw,44px); }
+@media (max-width: 700px) { .runs { grid-template-columns: 1fr; } }
+.run b {
+  display: block; font-family: var(--display); font-weight: 800;
+  font-size: clamp(2.25rem, 4.4vw, 3.5rem); line-height: 1;
+  letter-spacing: -0.04em; font-variant-numeric: tabular-nums;
+}
+.run span {
+  display: block; margin-top: 12px; font-family: var(--mono); font-size: 0.6875rem;
+  letter-spacing: 0.12em; text-transform: uppercase;
+}
+.field--navy .run b, .field--abyss .run b { color: var(--white); }
+.field--ice .run b, .field--paper .run b { color: var(--navy); }
+.field--navy .run span, .field--abyss .run span { color: var(--on-dark-faint); }
+.field--ice .run span, .field--paper .run span { color: var(--ink-500); }
