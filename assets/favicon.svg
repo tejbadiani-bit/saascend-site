@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="SaaScend">
+  <rect width="512" height="512" fill="#031F49"/>
+  <g fill="none" stroke="#00ACD4" stroke-width="48" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M116 398 256 112 396 398"/>
+    <path d="M186 296 326 296"/>
+  </g>
+</svg>

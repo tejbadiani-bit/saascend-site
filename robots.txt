@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tejbadiani-bit.github.io/saascend-site/sitemap.xml

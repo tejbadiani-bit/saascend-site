@@ -3,6 +3,7 @@
 import pathlib, re
 
 OUT = pathlib.Path(__file__).parent
+BASE = "https://tejbadiani-bit.github.io/saascend-site/"
 
 NAV = [("index.html", "Home"), ("solutions.html", "Solutions"),
        ("agents.html", "Agents"), ("how-we-work.html", "How we work"),
@@ -15,11 +16,25 @@ SHELL = """<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
 <meta name="description" content="{desc}">
+<link rel="canonical" href="{base}{slug}">
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{desc}">
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="SaaScend">
+<meta property="og:url" content="{base}{slug}">
+<meta property="og:image" content="{base}assets/og-card.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="SaaScend — build your revenue team's AI workforce">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{title}">
+<meta name="twitter:description" content="{desc}">
+<meta name="twitter:image" content="{base}assets/og-card.jpg">
 <meta name="theme-color" content="#01142F">
-<link rel="icon" href="assets/saascend-logo.png">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Open+Sans:wght@400;600&family=JetBrains+Mono:wght@500;600&display=swap">
@@ -123,8 +138,10 @@ def page(slug, title, desc, body):
         '<a class="nav__link{}" href="{}">{}</a>'.format(
             " is-active" if h == slug else "", h, t) for h, t in NAV)
     navpanel = "".join('<a href="{}">{}</a>'.format(h, t) for h, t in NAV)
+    canonical = "" if slug == "index.html" else slug
     (OUT / slug).write_text(SHELL.format(
-        title=title, desc=desc, navlinks=navlinks, navpanel=navpanel, body=body))
+        title=title, desc=desc, navlinks=navlinks, navpanel=navpanel, body=body,
+        base=BASE, slug=canonical))
     print("wrote", slug, len(body), "bytes of body")
 
 def masthead(sys, h1, lead, accent=""):
