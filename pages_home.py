@@ -59,14 +59,29 @@ def sequence():
             built=" is-built is-current" if i == 0 else "", i=i, k=k, nm=nm)
         for i, (k, nm, _d, _c) in enumerate(LAYERS))
 
+    ticks = "".join('<span class="seq__tick{on}" data-tick="{i}"></span>'.format(
+        on=" is-on" if i == 0 else "", i=i) for i in range(len(LAYERS)))
+
     return """
 <section class="seq" id="stack" data-seq>
   <div class="seq__track">
     <div class="seq__stage">
       <div class="wrap">
         <div class="seq__grid">
-          <div class="seq__copy">{steps}</div>
           <div>
+            <div class="seq__copy">{steps}</div>
+            <div class="seq__cue" aria-hidden="true">
+              <span>Scroll to build the stack</span>
+              <svg width="12" height="16" viewBox="0 0 12 16" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M6 1v13M1.5 9.5 6 14l4.5-4.5"/>
+              </svg>
+            </div>
+          </div>
+          <div>
+            <div class="seq__meter">
+              <div class="seq__ticks">{ticks}</div>
+              <div class="seq__count"><b data-seq-n>01</b> / 05</div>
+            </div>
             <div class="seq__plates">{plates}</div>
             <div class="seq__foot">
               <span>Built bottom-up</span>
@@ -77,7 +92,7 @@ def sequence():
       </div>
     </div>
   </div>
-</section>""".format(steps=steps, plates=plates)
+</section>""".format(steps=steps, plates=plates, ticks=ticks)
 
 
 def body():
