@@ -48,9 +48,13 @@
   --plate-hi:       rgba(255,255,255,0.065);
 
   /* Type */
-  --display: 'Montserrat', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --body:    'Open Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --mono:    'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  /* One family, two widths. Archivo's variable width axis carries the display
+     at expanded and the body at normal — a width contrast inside a single
+     family, rather than two ubiquitous Google faces bolted together.
+     Montserrat ExtraBold was the geometric-sans default that read as generated. */
+  --display: 'Archivo', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --body:    'Archivo', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono:    'Martian Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
   /* Space (4px base) */
   --s1: 4px;  --s2: 8px;   --s3: 12px;  --s4: 16px;  --s5: 20px;
@@ -851,7 +855,7 @@ html.js .layers.is-in .layer {
    company actually sells, so it now gets its own screen and assembles
    as you scroll: one layer per step, its copy swapping in beside it. */
 .seq { position: relative; background: var(--abyss); color: var(--on-dark); }
-.seq__track { height: 520vh; }
+.seq__track { height: 440vh; }
 .seq__stage {
   position: sticky; top: 0; height: 100vh;
   display: flex; align-items: center; overflow: hidden;
@@ -862,7 +866,7 @@ html.js .layers.is-in .layer {
 }
 @media (max-width: 900px) {
   .seq__grid { grid-template-columns: 1fr; gap: 28px; }
-  .seq__track { height: 460vh; }
+  .seq__track { height: 400vh; }
 }
 
 .seq__copy { min-height: 15rem; position: relative; }
@@ -892,16 +896,20 @@ html:not(.js) .seq__copy { min-height: 0; }
 }
 
 /* The plates. Built bottom-up, brightening as the argument rises. */
-.seq__plates { display: flex; flex-direction: column-reverse; gap: 8px; }
+.seq__plates {
+  display: flex; flex-direction: column-reverse; gap: 0;
+  border: 1px solid var(--rule-dark);
+}
 .plate {
   display: grid; grid-template-columns: 44px minmax(0,1fr);
   gap: var(--s4); align-items: center;
-  padding: clamp(14px, 2vw, 22px) clamp(16px, 2vw, 24px);
-  border: 1px solid var(--rule-dark);
-  border-radius: var(--radius-sm);
-  background: rgba(255,255,255,0.025);
+  padding: clamp(16px, 2.2vw, 26px) clamp(18px, 2vw, 26px);
+  border: 0; border-top: 1px solid var(--rule-dark);
+  border-radius: 0;
+  background: rgba(255,255,255,0.02);
 }
-html.js .plate { opacity: 0.16; }
+.plate:last-child { border-top: 0; }   /* DOM last = visually top */
+html.js .plate { opacity: 0.34; }
 html.js .plate.is-built { opacity: 1; }
 html.js .plate {
   transition: opacity 380ms var(--ease-out),
@@ -909,7 +917,14 @@ html.js .plate {
               border-color 380ms var(--ease-out);
 }
 .plate.is-built { background: rgba(255,255,255,0.055); border-color: rgba(140,205,235,0.30); }
-.plate.is-current { background: rgba(0,172,212,0.14); border-color: rgba(0,172,212,0.55); }
+.plate.is-current { background: rgba(0,172,212,0.15); }
+/* The current layer carries a solid cyan edge on its leading side, so the
+   eye can find it without relying on the fill alone. */
+.plate.is-current::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--cyan);
+}
+.plate { position: relative; }
 .plate__id {
   font-family: var(--mono); font-size: 0.6875rem; font-weight: 600;
   letter-spacing: 0.06em; color: var(--cyan);
@@ -951,12 +966,12 @@ html.js .plate {
     radial-gradient(1200px 700px at 78% 6%, rgba(0,172,212,0.17), transparent 64%),
     var(--abyss);
   color: var(--on-dark);
-  padding: calc(var(--nav-h) + clamp(36px,5.5vh,64px)) 0 clamp(32px,5vh,56px);
+  padding: calc(var(--nav-h) + clamp(28px,4vh,52px)) 0 clamp(24px,3.5vh,44px);
 }
 .open__display {
   font-family: var(--display); font-weight: 800;
-  font-size: clamp(2.6rem, 8.6vw, 7rem);
-  line-height: 0.95; letter-spacing: -0.045em;
+  font-size: clamp(2.3rem, 6.6vw, 5.25rem);
+  line-height: 0.98; letter-spacing: -0.045em;
   text-wrap: balance; max-width: 18ch;
 }
 .open__display .accent { color: var(--cyan); }
@@ -967,14 +982,14 @@ html.js .plate {
 }
 .open__act { margin-top: clamp(32px, 4vw, 48px); }
 .open__foot {
-  margin-top: auto; padding-top: clamp(32px, 5vh, 56px);
+  margin-top: auto; padding-top: clamp(24px, 3.8vh, 44px);
   display: flex; flex-wrap: wrap; gap: clamp(24px, 5vw, 72px);
   font-family: var(--mono); font-size: 0.6875rem; letter-spacing: 0.12em;
   text-transform: uppercase; color: var(--on-dark-faint);
 }
 .open__foot b {
   display: block; font-family: var(--display); font-weight: 800;
-  font-size: clamp(1.5rem, 2.4vw, 2.125rem); letter-spacing: -0.03em;
+  font-size: clamp(1.5rem, 2.4vw, 2rem); letter-spacing: -0.03em;
   color: var(--on-dark); margin-bottom: 6px;
 }
 
@@ -1097,3 +1112,88 @@ html.js .plate {
 .field--ice .run b, .field--paper .run b { color: var(--navy); }
 .field--navy .run span, .field--abyss .run span { color: var(--on-dark-faint); }
 .field--ice .run span, .field--paper .run span { color: var(--ink-500); }
+
+
+/* =====================================================================
+   TYPE — width as the instrument
+   Display sits at Archivo's expanded width with weight and negative
+   tracking; body drops to normal width. The mono is Martian Mono, which
+   is wide by design, so its tracking comes back down to near zero.
+   ===================================================================== */
+.t-display, .t-h1, .t-h2, .t-h3, .t-h4,
+.open__display, .tile__name, .statement, .bignum, .seq__name,
+.trow__k, .quiz__stage, .metric b, .run b, .hero__meta b, .open__foot b,
+.rung__t, .plate__name, .btn, .pill, .filter {
+  font-stretch: expanded;
+}
+.t-h3, .t-h4, .btn, .pill, .filter, .rung__t, .plate__name, .trow__k {
+  font-stretch: semi-expanded;
+}
+.t-display, .open__display, .tile__name, .statement, .bignum, .seq__name {
+  font-weight: 700;
+}
+body, .t-body, .t-lead, .t-small, p, .trow__v, .tile__line, .seq__note {
+  font-stretch: normal;
+}
+.t-sys, .t-eyebrow, .chip, .agent__team, .person__role, .layer__id,
+.plate__id, .seq__id, .seq__caps, .seq__foot, .roster__team, .run span,
+.metric span, .open__foot, .weak__id, .weak__s, .field > label, .foot h4,
+.foot__base, .sow__hd, .sow__note, .filter__n {
+  font-stretch: normal;
+  letter-spacing: 0.04em;
+}
+.t-eyebrow { letter-spacing: 0.06em; }
+
+
+/* =====================================================================
+   SCROLL AFFORDANCE
+   The pinned sequence gave no signal that scrolling was what advanced it,
+   and no sense of how far through you were. Both are now explicit: a
+   segmented rail that fills per step, a counter, and a cue that retires
+   itself once the reader has clearly understood.
+   ===================================================================== */
+.seq__meter {
+  display: flex; align-items: center; gap: var(--s4);
+  margin-bottom: clamp(20px, 3vw, 32px);
+}
+.seq__ticks { display: flex; gap: 4px; flex: 1; }
+.seq__tick {
+  height: 2px; flex: 1; background: rgba(255,255,255,0.14);
+  transition: background-color 300ms var(--ease-out);
+}
+.seq__tick.is-on { background: var(--cyan); }
+.seq__count {
+  font-family: var(--mono); font-size: 0.6875rem; font-weight: 500;
+  letter-spacing: 0.04em; color: var(--on-dark-faint); flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+}
+.seq__count b { color: var(--cyan); font-weight: 600; }
+
+.seq__cue {
+  display: inline-flex; align-items: center; gap: 10px;
+  margin-top: clamp(28px, 4vw, 40px);
+  font-family: var(--mono); font-size: 0.6875rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--on-dark-faint);
+}
+.seq__cue svg { display: block; }
+html.js .seq__cue { transition: opacity 400ms var(--ease-out); }
+.seq.is-moving .seq__cue { opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .seq__cue svg { animation: nudge 1.9s var(--ease-in-out) infinite; }
+}
+@keyframes nudge {
+  0%, 62%, 100% { transform: translateY(0); }
+  78% { transform: translateY(4px); }
+}
+html:not(.js) .seq__meter, html:not(.js) .seq__cue { display: none; }
+
+/* Laptop-height viewports: the hero's job is to land the promise and the
+   proof together, so it gives up vertical air rather than pushing the
+   numbers under the fold. */
+@media (max-height: 780px) {
+  .open { padding-top: calc(var(--nav-h) + 20px); padding-bottom: 20px; }
+  .open__display { font-size: clamp(2.1rem, 5vw, 3.75rem); }
+  .open__sub { margin-top: 18px; }
+  .open__act { margin-top: 24px; }
+  .open__foot { padding-top: 24px; }
+}

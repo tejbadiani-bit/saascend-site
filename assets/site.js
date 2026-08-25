@@ -234,6 +234,8 @@
     var track = seq.querySelector('.seq__track');
     var steps = [].slice.call(seq.querySelectorAll('.seq__step'));
     var plates = [].slice.call(seq.querySelectorAll('.plate'));
+    var ticks = [].slice.call(seq.querySelectorAll('.seq__tick'));
+    var counter = seq.querySelector('[data-seq-n]');
     var total = steps.length;
     var last = -1;
     var queued = false;
@@ -255,6 +257,10 @@
         el.classList.toggle('is-built', n <= i);
         el.classList.toggle('is-current', n === i);
       });
+      ticks.forEach(function (el, n) { el.classList.toggle('is-on', n <= i); });
+      if (counter) counter.textContent = ('0' + (i + 1)).slice(-2);
+      /* Once they have advanced once, the cue has done its job. */
+      if (i > 0) seq.classList.add('is-moving');
     };
 
     var onScroll = function () {
