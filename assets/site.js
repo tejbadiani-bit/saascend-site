@@ -221,6 +221,52 @@
     } else { fire(); }
   });
 
+  /* ================= THE ARGUMENT — pinned scroll sequence =================
+     The one orchestrated motion on the site. Scroll drives the assembly of the
+     stack bottom-up: each step builds one layer and swaps the copy beside it.
+     Position is read from scroll, so the motion is scrubbable in both
+     directions and cannot desync from where the user actually is — no
+     fire-once reveal, no animation the user can outrun.
+     With no JS, or reduced motion, every step is shown stacked and every
+     layer is already built. */
+  var seq = document.querySelector('[data-seq]');
+  if (seq) {
+    var track = seq.querySelector('.seq__track');
+    var steps = [].slice.call(seq.querySelectorAll('.seq__step'));
+    var plates = [].slice.call(seq.querySelectorAll('.plate'));
+    var total = steps.length;
+    var last = -1;
+    var queued = false;
+
+    var paint = function () {
+      queued = false;
+      var r = track.getBoundingClientRect();
+      var span = r.height - window.innerHeight;
+      if (span <= 0) return;
+      var p = (-r.top) / span;
+      p = p < 0 ? 0 : (p > 1 ? 1 : p);
+      /* Bias so the last step gets a full hold rather than a single frame. */
+      var i = Math.floor(p * total);
+      if (i > total - 1) i = total - 1;
+      if (i === last) return;
+      last = i;
+      steps.forEach(function (el, n) { el.classList.toggle('is-live', n === i); });
+      plates.forEach(function (el, n) {
+        el.classList.toggle('is-built', n <= i);
+        el.classList.toggle('is-current', n === i);
+      });
+    };
+
+    var onScroll = function () {
+      if (queued) return;
+      queued = true;
+      window.requestAnimationFrame(paint);
+    };
+    paint();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+  }
+
   /* ================= Stack layers: spring accordion =================
      Spammable, so it must be interruptible: Motion re-targets from the live
      height and the chevron carries the same spring, no velocity brick wall.
