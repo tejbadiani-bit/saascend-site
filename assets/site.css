@@ -261,16 +261,29 @@ h1, h2, h3, h4, p { margin: 0; }
 .nav__cta { padding: 10px 20px; font-size: 0.875rem; }
 .nav__burger { display: none; margin-left: auto; padding: var(--s2); color: var(--on-dark); }
 
+.nav__scrim {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(1,10,26,0.55);
+  opacity: 0;
+}
+.nav__scrim[hidden] { display: none; }
 .nav__panel {
   position: fixed; inset: var(--nav-h) 0 auto 0; z-index: 55;
   background: rgba(2,20,47,0.97);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--rule-dark);
-  padding: var(--s6);
-  display: none;
+  padding: var(--s6) var(--s6) var(--s8);
+  transform: translateY(-100%);
+  touch-action: none;
 }
-.nav__panel.is-open { display: block; }
+.nav__panel[hidden] { display: none; }
+/* Grab affordance — the sheet says it can be dragged before you try. */
+.nav__panel::after {
+  content: ""; display: block;
+  width: 40px; height: 4px; margin: var(--s6) auto 0;
+  border-radius: 2px; background: rgba(255,255,255,0.22);
+}
 .nav__panel a {
   display: block; padding: 13px 0;
   font-family: var(--display); font-weight: 600; font-size: 1.0625rem;
@@ -333,10 +346,13 @@ h1, h2, h3, h4, p { margin: 0; }
 
 .layer {
   display: grid;
-  grid-template-columns: 42px minmax(0,1fr);
+  grid-template-columns: 42px minmax(0,1fr) 16px;
   gap: var(--s4);
   align-items: start;
   padding: 15px 18px;
+  cursor: pointer;
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
   background: var(--plate);
   border: 1px solid var(--rule-dark);
   border-top-color: rgba(255,255,255,0.13);
@@ -351,7 +367,18 @@ h1, h2, h3, h4, p { margin: 0; }
   border-color: var(--rule-dark-hi);
   transform: translateY(-2px);
 }
-.layer:active { transform: translateY(-1px) scale(0.995); }
+.layer:active { transform: translateY(-1px) scale(0.994); }
+.layer__main { min-width: 0; }
+.layer__chev {
+  color: var(--on-dark-faint);
+  margin-top: 4px;
+  transition: color var(--t-ui) ease;
+}
+.layer:hover .layer__chev, .layer.is-open .layer__chev { color: var(--cyan); }
+/* Collapsed resting state lives here, so the layer reads correctly with no JS. */
+.layer__more { height: 0; opacity: 0; overflow: hidden; }
+.layer__more > .chips { padding-top: 12px; }
+html:not(.js) .layer__more { height: auto; opacity: 1; }
 .layer__id {
   font-family: var(--mono); font-size: 0.6875rem; font-weight: 600;
   letter-spacing: 0.06em; color: var(--cyan);
@@ -519,6 +546,7 @@ h1, h2, h3, h4, p { margin: 0; }
   color: var(--navy);
 }
 .agent[hidden] { display: none; }
+.agent { will-change: auto; }
 .agents-empty {
   padding: var(--s16) 0; text-align: center;
   font-size: 0.9375rem; color: var(--ink-500);
@@ -684,6 +712,7 @@ html.js .layers.is-in .layer {
 
 @media (prefers-reduced-motion: reduce) {
   html.js .rv, html.js .layer { opacity: 1; transform: none; }
+  .layer__chev { transition: none; }
   html.js .rv.is-in, html.js .layers.is-in .layer {
     transition: opacity 200ms ease; transition-delay: 0ms;
   }
