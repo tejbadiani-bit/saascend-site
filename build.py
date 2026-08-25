@@ -44,7 +44,8 @@ SHELL = """<!doctype html>
     </button>
   </div>
 </header>
-<div class="nav__panel">
+<div class="nav__scrim" hidden></div>
+<div class="nav__panel" hidden>
   <div class="wrap">
     {navpanel}
     <a href="contact.html" style="color:var(--cyan)">Scope your project &rarr;</a>
@@ -93,6 +94,7 @@ SHELL = """<!doctype html>
   </div>
 </footer>
 
+<script src="assets/vendor/motion.js"></script>
 <script src="assets/agents-data.js"></script>
 <script src="assets/site.js"></script>
 </body>

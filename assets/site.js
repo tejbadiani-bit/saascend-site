@@ -1,37 +1,199 @@
 /* SaaScend — site.js
-   Progressive enhancement only. Every resting visual state is defined in CSS;
-   JS adds motion, filtering, and the maturity check on top. */
+   Progressive enhancement. Every resting visual state is defined in CSS.
+
+   Motion policy (Apple's fluid-interface rules, translated to the web):
+   • Predetermined, non-interruptible motion (scroll reveals, the hero stack
+     assembling on load) stays in CSS — it runs off the main thread and keeps
+     its frames while the page is still loading.
+   • Anything a user can grab, press, or spam — the nav sheet, the stack
+     layers, the marketplace filter — is spring-driven via Motion, because
+     springs animate from the CURRENT on-screen value and can be re-targeted
+     mid-flight without a jump.
+   • Apple's two parameters, not mass/stiffness/damping:
+       damping 1.0 / response 0.4  → { bounce: 0,   duration: 0.4 }  reposition
+       damping 0.8 / response 0.3  → { bounce: 0.2, duration: 0.3 }  drawer
+     Bounce is only spent where a real gesture carried momentum.
+*/
 (function () {
   'use strict';
 
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var M = window.Motion || {};
+  var animate = M.animate;
+  var hasMotion = typeof animate === 'function';
+  /* Live, not read-once — someone can flip the OS setting mid-session. */
+  var reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var reduce = reduceMQ.matches;
+  if (reduceMQ.addEventListener) {
+    reduceMQ.addEventListener('change', function (e) { reduce = e.matches; });
+  }
 
-  /* ---- Nav: scroll state + mobile panel ---- */
+  /* Apple's spring presets (Designing Fluid Interfaces). */
+  var SPRING_MOVE   = { type: 'spring', bounce: 0,   duration: 0.4 };
+  var SPRING_DRAWER = { type: 'spring', bounce: 0.2, duration: 0.3 };
+  var CROSSFADE     = { duration: 0.2, ease: [0.23, 1, 0.32, 1] };
+
+  /* Reduced motion means a gentler, non-vestibular equivalent — not nothing. */
+  function spring(cfg, velocity) {
+    if (reduce) return CROSSFADE;
+    if (!velocity) return cfg;
+    var out = {};
+    for (var k in cfg) out[k] = cfg[k];
+    out.velocity = velocity;          // Motion takes absolute px/s
+    return out;
+  }
+
+  /* Apple's momentum projection — exponential decay, NOT v²/2a.
+     Tells you where a flick is GOING, so you snap to that, not to where
+     the finger happened to leave the screen. */
+  function project(velocity, decelerationRate) {
+    var d = decelerationRate || 0.998;
+    return (velocity / 1000) * d / (1 - d);
+  }
+
+  /* Progressive resistance past a boundary: real things slow before they stop. */
+  function rubberband(overshoot, dimension, constant) {
+    var c = constant || 0.55;
+    return (overshoot * dimension * c) / (dimension + c * Math.abs(overshoot));
+  }
+
+  /* Tracks a short position/time history so we have real velocity at release. */
+  function VelocityTracker() {
+    this.samples = [];
+  }
+  VelocityTracker.prototype.push = function (v, t) {
+    this.samples.push({ v: v, t: t });
+    if (this.samples.length > 6) this.samples.shift();
+  };
+  VelocityTracker.prototype.velocity = function () {
+    var s = this.samples;
+    if (s.length < 2) return 0;
+    var a = s[0], b = s[s.length - 1];
+    var dt = b.t - a.t;
+    if (dt <= 0) return 0;
+    return (b.v - a.v) / dt * 1000;   // px/s
+  };
+
+  /* Reads the live on-screen translateY so an interrupted animation restarts
+     from the presentation value instead of jumping to the logical one. */
+  function currentY(el) {
+    var m = new DOMMatrixReadOnly(getComputedStyle(el).transform);
+    return m.m42 || 0;
+  }
+
+  /* ================= Nav: scroll state ================= */
   var nav = document.querySelector('.nav');
   if (nav) {
-    var onScroll = function () {
-      nav.classList.toggle('is-scrolled', window.scrollY > 12);
-    };
+    var onScroll = function () { nav.classList.toggle('is-scrolled', window.scrollY > 12); };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
   }
 
+  /* ================= Nav sheet =================
+     A top sheet, so it enters downward and must dismiss upward along the same
+     path (spatial consistency). Drag tracks the finger 1:1, rubber-bands past
+     the open position, and hands its release velocity to the spring so there
+     is no seam between dragging and animating. */
   var burger = document.querySelector('.nav__burger');
-  var panel = document.querySelector('.nav__panel');
-  if (burger && panel) {
-    burger.addEventListener('click', function () {
-      var open = panel.classList.toggle('is-open');
-      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+  var sheet  = document.querySelector('.nav__panel');
+  var scrim  = document.querySelector('.nav__scrim');
+
+  if (burger && sheet && scrim) {
+    var open = false, dragging = false, sheetH = 0, startY = 0, offset = 0;
+    var track = null, pid = null;
+
+    function setOpen(state) {
+      open = state;
+      burger.setAttribute('aria-expanded', state ? 'true' : 'false');
+      document.body.style.overflow = state ? 'hidden' : '';
+    }
+
+    function show() {
+      sheet.hidden = false; scrim.hidden = false;
+      sheetH = sheet.offsetHeight;
+      setOpen(true);
+      if (!hasMotion) { sheet.style.transform = 'none'; scrim.style.opacity = '1'; return; }
+      animate(sheet, { transform: ['translateY(-100%)', 'translateY(0px)'] }, spring(SPRING_DRAWER));
+      animate(scrim, { opacity: [0, 1] }, reduce ? CROSSFADE : { duration: 0.24, ease: [0.23, 1, 0.32, 1] });
+    }
+
+    function hide(velocity) {
+      setOpen(false);
+      if (!hasMotion) { sheet.hidden = true; scrim.hidden = true; return; }
+      animate(scrim, { opacity: 0 }, reduce ? CROSSFADE : { duration: 0.2, ease: [0.23, 1, 0.32, 1] });
+      animate(sheet, { transform: 'translateY(-100%)' }, spring(SPRING_DRAWER, velocity))
+        .finished.then(function () {
+          if (!open) { sheet.hidden = true; scrim.hidden = true; sheet.style.transform = ''; }
+        });
+    }
+
+    burger.addEventListener('click', function () { open ? hide(0) : show(); });
+    scrim.addEventListener('click', function () { hide(0); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && open) hide(0);
     });
-    panel.addEventListener('click', function (e) {
-      if (e.target.tagName === 'A') {
-        panel.classList.remove('is-open');
-        burger.setAttribute('aria-expanded', 'false');
+    sheet.addEventListener('click', function (e) {
+      if (e.target.tagName === 'A' && !dragging) hide(0);
+    });
+
+    /* 1:1 drag with pointer capture, so tracking survives leaving the sheet. */
+    sheet.addEventListener('pointerdown', function (e) {
+      if (!open || !hasMotion || reduce) return;
+      pid = e.pointerId;
+      startY = e.clientY;
+      offset = currentY(sheet);        // respect where they grabbed from
+      track = new VelocityTracker();
+      track.push(e.clientY, e.timeStamp);
+      dragging = false;
+    });
+
+    sheet.addEventListener('pointermove', function (e) {
+      if (pid === null || e.pointerId !== pid) return;
+      var dy = e.clientY - startY;
+      /* ~10px of hysteresis before committing to a drag, so taps still tap. */
+      if (!dragging) {
+        if (Math.abs(dy) < 10) return;
+        dragging = true;
+        /* Capture keeps tracking alive when the pointer leaves the sheet.
+           It throws if the pointer is already gone — the drag still works. */
+        try { sheet.setPointerCapture(pid); } catch (err) {}
+        sheet.style.willChange = 'transform';
       }
+      track.push(e.clientY, e.timeStamp);
+      var y = offset + dy;
+      /* Dragging down past open is past the boundary — resist, don't stop hard. */
+      if (y > 0) y = rubberband(y, sheetH);
+      sheet.style.transform = 'translateY(' + y + 'px)';
     });
+
+    function endDrag(e) {
+      if (pid === null || (e && e.pointerId !== pid)) return;
+      var wasDragging = dragging;
+      try {
+        if (sheet.hasPointerCapture && sheet.hasPointerCapture(pid)) {
+          sheet.releasePointerCapture(pid);
+        }
+      } catch (err) {}
+      pid = null;
+      sheet.style.willChange = '';
+      if (!wasDragging) { dragging = false; return; }
+
+      var v = track.velocity();
+      var y = currentY(sheet);
+      /* Snap to where the gesture is going, and let velocity sign decide the
+         commit — a fast upward flick dismisses even from barely-moved. */
+      var projected = y + project(v);
+      if (v < -320 || projected < -sheetH / 3) hide(v);
+      else animate(sheet, { transform: 'translateY(0px)' }, spring(SPRING_DRAWER, v));
+
+      setTimeout(function () { dragging = false; }, 0);
+    }
+    sheet.addEventListener('pointerup', endDrag);
+    sheet.addEventListener('pointercancel', endDrag);
   }
 
-  /* ---- Reveal on scroll ---- */
+  /* ================= Scroll reveals — CSS, deliberately =================
+     Predetermined and never interrupted, so CSS transitions keep their frames
+     while the rest of the page is still loading. JS only flips the class. */
   var reveals = document.querySelectorAll('.rv');
   if (reveals.length && 'IntersectionObserver' in window) {
     var ro = new IntersectionObserver(function (entries) {
@@ -44,11 +206,10 @@
     reveals.forEach(function (el) { el.classList.add('is-in'); });
   }
 
-  /* ---- The stack assembles bottom-up: foundation first, agents last.
-          Source order is L1..L5; CSS reverses it visually. ---- */
+  /* The stack assembles bottom-up — foundation first, agents last. Also CSS:
+     it fires during load, exactly when a JS animation would drop frames. */
   document.querySelectorAll('.layers').forEach(function (group) {
-    var layers = group.querySelectorAll('.layer');
-    layers.forEach(function (l, i) {
+    group.querySelectorAll('.layer').forEach(function (l, i) {
       l.style.setProperty('--d', (reduce ? 0 : i * 95) + 'ms');
     });
     var fire = function () { group.classList.add('is-in'); };
@@ -60,7 +221,31 @@
     } else { fire(); }
   });
 
-  /* ---- Agent marketplace ---- */
+  /* ================= Stack layers: spring accordion =================
+     Spammable, so it must be interruptible: Motion re-targets from the live
+     height and the chevron carries the same spring, no velocity brick wall.
+     height is the sanctioned exception — an accordion has no transform
+     equivalent. */
+  document.querySelectorAll('[data-layer]').forEach(function (layer) {
+    var more = layer.querySelector('[data-layer-more]');
+    var chev = layer.querySelector('[data-layer-chev]');
+    if (!more) return;
+    var isOpen = false;
+
+    layer.addEventListener('click', function () {
+      isOpen = !isOpen;
+      layer.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      layer.classList.toggle('is-open', isOpen);
+
+      var target = isOpen ? more.scrollHeight : 0;
+
+      if (!hasMotion) { more.style.height = target ? 'auto' : '0px'; return; }
+      animate(more, { height: target + 'px', opacity: isOpen ? 1 : 0 }, spring(SPRING_MOVE));
+      if (chev) animate(chev, { transform: 'rotate(' + (isOpen ? 180 : 0) + 'deg)' }, spring(SPRING_MOVE));
+    });
+  });
+
+  /* ================= Agent marketplace ================= */
   var grid = document.querySelector('[data-agents]');
   if (grid && window.SAASCEND_AGENTS) {
     var agents = window.SAASCEND_AGENTS;
@@ -104,11 +289,21 @@
         if (!btn) return;
         var team = btn.dataset.team;
         bar.querySelectorAll('.filter').forEach(function (b) { b.classList.toggle('is-on', b === btn); });
-        var shown = 0;
+
+        var shown = 0, i = 0;
         grid.querySelectorAll('.agent').forEach(function (card) {
           var on = team === 'All' || card.dataset.team === team;
           card.hidden = !on;
-          if (on) shown++;
+          if (!on) return;
+          shown++;
+          /* Short, capped stagger. Filtering is frequent enough that a long
+             entrance would read as lag, so it stays under 300ms. */
+          if (hasMotion && !reduce) {
+            animate(card,
+              { opacity: [0, 1], transform: ['translateY(8px)', 'translateY(0px)'] },
+              { type: 'spring', bounce: 0, duration: 0.28, delay: Math.min(i, 8) * 0.018 });
+          }
+          i++;
         });
         setCount(shown, team);
       });
@@ -116,7 +311,7 @@
     setCount(agents.length, 'All');
   }
 
-  /* ---- Maturity check ---- */
+  /* ================= Maturity check ================= */
   var quiz = document.querySelector('[data-quiz]');
   if (quiz) {
     var QS = [
@@ -148,6 +343,14 @@
     var rEl = quiz.querySelector('[data-quiz-res]');
     var bEl = quiz.querySelector('[data-quiz-body]');
 
+    /* Questions advance in place, so the swap gets a short cross-fade —
+       enough to stop content teleporting, not enough to feel like a wait. */
+    function enter(el) {
+      if (!hasMotion || reduce) return;
+      animate(el, { opacity: [0, 1], transform: ['translateY(6px)', 'translateY(0px)'] },
+        { type: 'spring', bounce: 0, duration: 0.26 });
+    }
+
     var render = function () {
       var item = QS[i];
       qEl.textContent = (i + 1) + '. ' + item.q;
@@ -156,6 +359,7 @@
       oEl.innerHTML = item.a.map(function (t, n) {
         return '<button class="quiz__opt" data-v="' + n + '">' + t + '</button>';
       }).join('');
+      enter(bEl);
     };
 
     var finish = function () {
@@ -176,6 +380,7 @@
         '<a class="btn btn--cyan" href="contact.html">Scope this with an architect</a>' +
         '<button class="btn btn--ghost-dark" data-quiz-reset>Start over</button>' +
         '</div>';
+      enter(rEl);
     };
 
     oEl.addEventListener('click', function (e) {
@@ -198,7 +403,7 @@
     render();
   }
 
-  /* ---- Contact form: static site, so hand off to the real inbox ---- */
+  /* ================= Contact form ================= */
   var form = document.querySelector('[data-scope-form]');
   if (form) {
     form.addEventListener('submit', function (e) {

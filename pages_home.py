@@ -5,26 +5,39 @@
 # first); CSS reverses it so it reads bottom-up on screen and assembles in
 # that order — which is the argument the company actually makes.
 LAYERS = [
-    ("L1", "Systems &amp; data",   "Salesforce, HubSpot, warehouse &mdash; one data model the business trusts.", False),
-    ("L2", "Integrations",         "Observable data flow between systems, not point-to-point guesswork.", False),
-    ("L3", "Automation",           "Documented, single-owner automation with defined guardrails.", False),
-    ("L4", "Orchestration",        "A master agent that holds context and routes work across the stack.", False),
-    ("L5", "Agent workforce",      "33 specialised agents doing real GTM work, with human approval on consequential actions.", True),
+    ("L1", "Systems &amp; data",   "Salesforce, HubSpot, warehouse &mdash; one data model the business trusts.",
+     ["Data model", "Field governance", "Migrations", "Dedupe"], False),
+    ("L2", "Integrations",         "Observable data flow between systems, not point-to-point guesswork.",
+     ["Named credentials", "Platform events", "Observable sync"], False),
+    ("L3", "Automation",           "Documented, single-owner automation with defined guardrails.",
+     ["Flows", "Apex", "Single-writer rules", "Guardrails"], False),
+    ("L4", "Orchestration",        "A master agent that holds context and routes work across the stack.",
+     ["Context store", "Routing", "Approvals", "Audit trail"], False),
+    ("L5", "Agent workforce",      "33 specialised agents doing real GTM work, with human approval on consequential actions.",
+     ["33 agents", "4 GTM teams", "Human in the loop"], True),
 ]
 
 def stackfig():
     rows = "".join(
-        '<div class="layer{cls}">'
+        '<button class="layer{cls}" type="button" aria-expanded="false" data-layer>'
         '<div class="layer__id">{k}</div>'
-        '<div><div class="layer__name">{n}</div>'
-        '<div class="layer__note">{d}</div></div>'
-        '</div>'.format(cls=" layer--top" if top else "", k=k, n=n, d=d)
-        for k, n, d, top in LAYERS)
+        '<div class="layer__main">'
+        '<div class="layer__name">{n}</div>'
+        '<div class="layer__note">{d}</div>'
+        '<div class="layer__more" data-layer-more><div class="chips">{c}</div></div>'
+        '</div>'
+        '<svg class="layer__chev" data-layer-chev width="14" height="14" viewBox="0 0 14 14" '
+        'fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">'
+        '<path d="M3 5.5 7 9.5l4-4"/></svg>'
+        '</button>'.format(
+            cls=" layer--top" if top else "", k=k, n=n, d=d,
+            c="".join('<span class="chip">%s</span>' % x for x in caps))
+        for k, n, d, caps, top in LAYERS)
     return """
 <figure class="stackfig" style="margin:0">
   <figcaption class="stackfig__cap">
     <span class="t-sys">The GTM stack</span>
-    <span class="t-sys" style="color:var(--on-dark-faint)">Foundation &rarr; AI</span>
+    <span class="t-sys" style="color:var(--on-dark-faint)">Tap a layer</span>
   </figcaption>
   <div class="layers">{rows}</div>
   <div class="stackfig__foot">
@@ -32,7 +45,6 @@ def stackfig():
     upward from L1 and never the other way round.
   </div>
 </figure>""".format(rows=rows)
-
 
 PARTNERS = [
     ("Salesforce", "Global Strategic Agreement partner &mdash; multi-cloud engineering with top-tier product access."),

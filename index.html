@@ -34,7 +34,8 @@
     </button>
   </div>
 </header>
-<div class="nav__panel">
+<div class="nav__scrim" hidden></div>
+<div class="nav__panel" hidden>
   <div class="wrap">
     <a href="index.html">Home</a><a href="solutions.html">Solutions</a><a href="agents.html">Agents</a><a href="how-we-work.html">How we work</a><a href="about.html">About</a>
     <a href="contact.html" style="color:var(--cyan)">Scope your project &rarr;</a>
@@ -67,9 +68,9 @@
 <figure class="stackfig" style="margin:0">
   <figcaption class="stackfig__cap">
     <span class="t-sys">The GTM stack</span>
-    <span class="t-sys" style="color:var(--on-dark-faint)">Foundation &rarr; AI</span>
+    <span class="t-sys" style="color:var(--on-dark-faint)">Tap a layer</span>
   </figcaption>
-  <div class="layers"><div class="layer"><div class="layer__id">L1</div><div><div class="layer__name">Systems &amp; data</div><div class="layer__note">Salesforce, HubSpot, warehouse &mdash; one data model the business trusts.</div></div></div><div class="layer"><div class="layer__id">L2</div><div><div class="layer__name">Integrations</div><div class="layer__note">Observable data flow between systems, not point-to-point guesswork.</div></div></div><div class="layer"><div class="layer__id">L3</div><div><div class="layer__name">Automation</div><div class="layer__note">Documented, single-owner automation with defined guardrails.</div></div></div><div class="layer"><div class="layer__id">L4</div><div><div class="layer__name">Orchestration</div><div class="layer__note">A master agent that holds context and routes work across the stack.</div></div></div><div class="layer layer--top"><div class="layer__id">L5</div><div><div class="layer__name">Agent workforce</div><div class="layer__note">33 specialised agents doing real GTM work, with human approval on consequential actions.</div></div></div></div>
+  <div class="layers"><button class="layer" type="button" aria-expanded="false" data-layer><div class="layer__id">L1</div><div class="layer__main"><div class="layer__name">Systems &amp; data</div><div class="layer__note">Salesforce, HubSpot, warehouse &mdash; one data model the business trusts.</div><div class="layer__more" data-layer-more><div class="chips"><span class="chip">Data model</span><span class="chip">Field governance</span><span class="chip">Migrations</span><span class="chip">Dedupe</span></div></div></div><svg class="layer__chev" data-layer-chev width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 5.5 7 9.5l4-4"/></svg></button><button class="layer" type="button" aria-expanded="false" data-layer><div class="layer__id">L2</div><div class="layer__main"><div class="layer__name">Integrations</div><div class="layer__note">Observable data flow between systems, not point-to-point guesswork.</div><div class="layer__more" data-layer-more><div class="chips"><span class="chip">Named credentials</span><span class="chip">Platform events</span><span class="chip">Observable sync</span></div></div></div><svg class="layer__chev" data-layer-chev width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 5.5 7 9.5l4-4"/></svg></button><button class="layer" type="button" aria-expanded="false" data-layer><div class="layer__id">L3</div><div class="layer__main"><div class="layer__name">Automation</div><div class="layer__note">Documented, single-owner automation with defined guardrails.</div><div class="layer__more" data-layer-more><div class="chips"><span class="chip">Flows</span><span class="chip">Apex</span><span class="chip">Single-writer rules</span><span class="chip">Guardrails</span></div></div></div><svg class="layer__chev" data-layer-chev width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 5.5 7 9.5l4-4"/></svg></button><button class="layer" type="button" aria-expanded="false" data-layer><div class="layer__id">L4</div><div class="layer__main"><div class="layer__name">Orchestration</div><div class="layer__note">A master agent that holds context and routes work across the stack.</div><div class="layer__more" data-layer-more><div class="chips"><span class="chip">Context store</span><span class="chip">Routing</span><span class="chip">Approvals</span><span class="chip">Audit trail</span></div></div></div><svg class="layer__chev" data-layer-chev width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 5.5 7 9.5l4-4"/></svg></button><button class="layer layer--top" type="button" aria-expanded="false" data-layer><div class="layer__id">L5</div><div class="layer__main"><div class="layer__name">Agent workforce</div><div class="layer__note">33 specialised agents doing real GTM work, with human approval on consequential actions.</div><div class="layer__more" data-layer-more><div class="chips"><span class="chip">33 agents</span><span class="chip">4 GTM teams</span><span class="chip">Human in the loop</span></div></div></div><svg class="layer__chev" data-layer-chev width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 5.5 7 9.5l4-4"/></svg></button></div>
   <div class="stackfig__foot">
     Every layer is load-bearing. <b>AI sits at the top</b> &mdash; which is why we build
     upward from L1 and never the other way round.
@@ -264,6 +265,7 @@
   </div>
 </footer>
 
+<script src="assets/vendor/motion.js"></script>
 <script src="assets/agents-data.js"></script>
 <script src="assets/site.js"></script>
 </body>
