@@ -11,6 +11,16 @@ def cards(items, dark=False, num=True):
     return "".join(out)
 
 
+def people(items):
+    return "".join(
+        '<article class="card card--lift rv person">'
+        '<h3 class="t-h3">{n}</h3>'
+        '<div class="person__role">{r}</div>'
+        '<p class="t-body">{d}</p>'
+        '</article>'.format(n=n, r=r, d=d)
+        for n, r, d in items)
+
+
 def split(p_title, p_items, o_title, o_items):
     def li(items, mark):
         return "".join('<li><span class="mk">%s</span><span>%s</span></li>' % (mark, x) for x in items)
@@ -289,11 +299,16 @@ PRINCIPLES = [
     ("One number everyone trusts", "The measure of a GTM system is whether leadership runs on the number in the CRM. That is the bar we build to."),
 ]
 LEADERSHIP = [
-    ("Founder &amp; CEO", "Sets the vision for agentic GTM delivery and owns the strategic partnership with Salesforce and the platform ecosystem."),
-    ("Head of Delivery", "Owns the agentic delivery model end to end &mdash; the architects, the agent pipeline, and the quality bar on every engagement."),
-    ("Head of AI", "Leads the AI transformation practice: agent design, orchestration, and the governance that keeps agents safe in production."),
-    ("Head of Platform Partnerships", "Deepens the Salesforce, HubSpot and Anthropic relationships so clients get the most from every platform they run."),
+    ("Craig Jordan", "Founder &amp; CEO",
+     "Sets the direction for agentic GTM delivery and owns the platform partnerships the practice is built on."),
+    ("Tej Badiani", "VP Consulting &amp; Operations",
+     "Owns the agentic delivery model end to end &mdash; the architects, the agent pipeline, and the quality bar on every engagement."),
+    ("Dev Purdon", "Senior Director of Consulting",
+     "Leads consulting delivery on client engagements, from discovery through UAT sign-off."),
+    ("Allie Adams", "Director of Sales",
+     "Owns scoping and commercials &mdash; the fixed-bid number you see before anything starts."),
 ]
+
 EXPERTISE = [
     ("The stack is the strategy", "How you model accounts, stages and territories decides what you can measure and what you can automate. We treat the data model as a first-class deliverable."),
     ("Depth across the ecosystem", "Salesforce, HubSpot, RevOps and the surrounding tools &mdash; we know how they connect, where they conflict, and how to make them one system."),
@@ -374,15 +389,16 @@ def about_body():
   <div class="wrap">
     <div class="head rv">
       <div class="t-eyebrow">Leadership</div>
-      <h2 class="t-h1" style="color:var(--navy)">Senior people, directing the work</h2>
-      <p class="t-lead">Every engagement is led by experienced architects accountable for the outcome.</p>
+      <h2 class="t-h1" style="color:var(--navy)">Who owns the outcome</h2>
+      <p class="t-lead">Four people sign off on every engagement. You deal with them directly
+        &mdash; not an account manager relaying decisions from someone you never meet.</p>
     </div>
     <div class="grid grid-4 mt-16">{leadership}</div>
   </div>
 </section>
 """.format(principles=cards(PRINCIPLES),
            expertise=cards(EXPERTISE, dark=True, num=True),
-           leadership=cards(LEADERSHIP, num=False))
+           leadership=people(LEADERSHIP))
 
 
 # ============================ CONTACT ============================

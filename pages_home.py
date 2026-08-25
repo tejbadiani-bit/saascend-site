@@ -143,7 +143,7 @@ def body():
     <div class="hero__grid">
       <div class="hero__copy">
         <div class="t-eyebrow">Agentic GTM</div>
-        <h1 class="t-display hero__display">Build your revenue<br>team&rsquo;s <span class="accent">AI workforce</span></h1>
+        <h1 class="t-display hero__display">Build your revenue<br class="brk">team&rsquo;s <span class="accent">AI workforce</span></h1>
         <p class="t-lead hero__sub" style="color:var(--on-dark-soft)">
           We engineer the GTM systems underneath modern revenue teams &mdash; then deploy the
           agents that run on top. In that order, because the order is the whole point.</p>

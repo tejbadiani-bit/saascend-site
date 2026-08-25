@@ -66,42 +66,50 @@ Stripe (diagrams that carry real information) — the discipline, not the layout
 
 ---
 
-## This pass — the open gaps, in priority order
+## Closed — 2026-08-25
 
-### 1. Imagery — the site has none
-Beyond the logo there is not a single image. Nothing is broken by this, but two
-absences are actively costing us:
+- **Social card.** `assets/og-card.jpg` (1200×630, 114KB). Higgsfield GPT Image 2
+  generated the five-strata background; the wordmark, headline and rule are
+  composited on top as real type rather than generated text. Wired as `og:image`
+  and `twitter:image` (summary_large_image) with canonical + `og:url` per page.
+- **Favicon.** Derived from the real logo mark rather than generated, so it
+  cannot fight the wordmark: `assets/favicon.svg` plus 32/180/192/512 PNGs and
+  `site.webmanifest`. Verified legible at 16px.
+- **Leadership.** Real people, real titles: Craig Jordan (Founder & CEO),
+  Tej Badiani (VP Consulting & Operations), Dev Purdon (Senior Director of
+  Consulting), Allie Adams (Director of Sales). Name-led cards with the title in
+  mono. No headshots — supply four and they can be added.
+- **Housekeeping.** `sitemap.xml`, `robots.txt`, `site.webmanifest`.
 
-- **No `og:image`.** Every shared link previews blank. Highest-value fix here.
-- **Favicon is a raw logo PNG.** Needs a proper small-size-legible icon.
+## Still open
 
-Generate these with the Higgsfield CLI (see below). Do not reach for stock, and
-do not add decorative imagery to sections that are working — the diagram-led
-look is deliberate. Imagery earns its place only where its absence is a defect.
-
-### 2. Leadership section has roles but no people
-`about.html` lists Founder & CEO, Head of Delivery, Head of AI, Head of Platform
-Partnerships with real scope descriptions and no names or faces. Either give me
-the four names, titles and headshots, or say the section should stay
-role-only — both are defensible, but the current state reads as a placeholder.
-**Do not generate synthetic headshots for real roles at a real company.**
-
-### 3. Proof needs sourcing, not inventing
+### Proof needs sourcing, not inventing
 The two case studies (32% faster cycle, 1 day → 1 hr, 100% automation owned; 0
 pipeline lost, 3 weeks to production, 2 → 1 systems of record) and the
 unattributed VP RevOps testimonial were lifted from saascend.com. Confirm they
-are approved for reuse and correctly attributed. There is no client-logo strip —
-that was deliberate, since the names on the live site look like placeholders.
-If there are real, cleared logos, that is the strongest addition available.
+are approved for reuse and correctly attributed. There is still no client-logo
+strip — deliberately, since the names on the live site look like placeholders.
+Real cleared logos remain the single strongest addition available.
 
-### 4. Housekeeping, unglamorous and missing
-No `sitemap.xml`, no `robots.txt`, no analytics, no custom domain. Say which
-analytics (if any) and which domain, and I will wire them.
+### Leadership scope lines need a read
+The one-line accountability description under each name was written here, not
+supplied. Check all four say something true before this goes anywhere public.
+
+### Decisions needed from you
+Analytics (which, if any) and a custom domain. Both are one commit once chosen.
+
+### Leadership headshots
+Four photos would complete the section. Do not generate synthetic headshots for
+real named people.
 
 **Standing rule: do not invent client logos, testimonials, headshots or case
 figures. Leave the gap and tell me what you need.**
 
----
+### Accepted, not fixed
+At ≤390px the about-page heading breaks as "Generic consultants / configure. /
+Systems experts / architect." Left alone on purpose — it is a two-sentence
+antithesis, and isolating the verbs *configure* and *architect* carries the
+contrast rather than reading as a widow.
 
 ## Asset creation — use the Higgsfield CLI
 

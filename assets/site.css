@@ -93,7 +93,7 @@ h1, h2, h3, h4, p { margin: 0; }
   text-wrap: balance;
   font-family: var(--display);
   font-weight: 800;
-  font-size: clamp(2.25rem, 4.4vw, 3.5rem);
+  font-size: clamp(2.05rem, 4.4vw, 3.5rem);
   line-height: 1.04;
   letter-spacing: -0.035em;
 }
@@ -101,7 +101,7 @@ h1, h2, h3, h4, p { margin: 0; }
   text-wrap: balance;
   font-family: var(--display);
   font-weight: 800;
-  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-size: clamp(1.85rem, 4vw, 3.25rem);
   line-height: 1.06;
   letter-spacing: -0.03em;
 }
@@ -744,3 +744,20 @@ html.js .layers.is-in .layer {
 .sow__row--win .sow__k { color: var(--cyan); }
 .sow__row--win .sow__v { color: var(--cyan); }
 .sow__note { padding: 12px 18px; font-family: var(--mono); font-size: 0.625rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--on-dark-faint); border-top: 1px solid var(--rule-dark); }
+
+/* The hero's forced line break is a desktop composition choice. Below 640px it
+   produces a one-word last line, so the phrase goes back to text-wrap: balance. */
+@media (max-width: 640px) {
+  .hero__display .brk { display: none; }
+}
+
+/* ---------- 22. PERSON CARD ---------- */
+.person > * + * { margin-top: var(--s2); }
+.person .t-body { margin-top: var(--s4); }
+/* Two lines reserved so a long title doesn't push one card's copy out of line. */
+.person__role {
+  font-family: var(--mono); font-size: 0.6875rem; font-weight: 600;
+  line-height: 1.45; min-height: 2em;
+  letter-spacing: 0.11em; text-transform: uppercase; color: var(--cyan-600);
+}
+@media (max-width: 620px) { .person__role { min-height: 0; } }
